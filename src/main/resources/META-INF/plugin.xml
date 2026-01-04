@@ -26,6 +26,7 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-
+        <projectService serviceImplementation="com.samwahome.skopiojetbrains.skopiojetbrains.SkopioProjectService"/>
+        <projectTaskManagerListener implementation="com.samwahome.skopiojetbrains.skopiojetbrains.SkopioProjectManagerListener"/>
     </extensions>
 </idea-plugin>
