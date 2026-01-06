@@ -1,0 +1,41 @@
+package com.samwahome.skopiojetbrains.skopiojetbrains
+
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.project.Project
+import com.samwahome.skopiojetbrains.skopiojetbrains.classify.ActivityClassifier
+import com.samwahome.skopiojetbrains.skopiojetbrains.cli.*
+import com.samwahome.skopiojetbrains.skopiojetbrains.core.UsageTracker
+import com.samwahome.skopiojetbrains.skopiojetbrains.listeners.ExecutionModeListener
+import java.nio.file.Paths
+
+@Service(Service.Level.PROJECT)
+class SkopioProjectService(private val project: Project) {
+    private val classifier = ActivityClassifier(project)
+
+    private val installer = SkopioCliInstaller(
+        installDir = Paths.get(System.getProperty("user.home"), ".skopio", "bin"),
+        downloadUrl = "https://github.com/Skopio-app/cli-releases/releases/latest",
+        binaryName = "skopio-cli-darwin-aarch64"
+    )
+
+    private val cliBridge: SkopioCliBridge = SkopioCliBridgeImpl(installer)
+
+    private val tracker = UsageTracker(
+        project = project,
+        classifier = classifier,
+        cli = cliBridge,
+        sourceName = "skopio-jetbrains"
+    )
+
+    private val execListener = ExecutionModeListener(project, classifier)
+
+    fun start() {
+        execListener.start()
+        tracker.start()
+    }
+
+    fun stop() {
+        execListener.stop()
+        tracker.dispose()
+    }
+}
