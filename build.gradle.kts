@@ -21,6 +21,8 @@ dependencies {
     intellijPlatform {
         create("IC", "2025.1.4.1")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
+
+        bundledPlugin("com.intellij.java")
     }
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")

@@ -20,7 +20,7 @@ class SkopioCliInstaller(
     fun ensureInstalled(): Path {
         installDir.createDirectories()
 
-        val arch = PlatformArch.detectMacArch()
+        val arch = PlatformArch.detectArch()
         val binaryName = "skopio-cli-darwin-$arch"
         val targetPath = installDir.resolve(binaryName)
         val versionMarker = installDir.resolve("$binaryName.version")
