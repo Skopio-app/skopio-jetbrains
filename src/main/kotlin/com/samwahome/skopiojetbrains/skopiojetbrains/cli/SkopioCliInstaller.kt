@@ -4,37 +4,100 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.file.Files
 import java.nio.file.Path
+import java.security.MessageDigest
 import kotlin.io.path.*
 
 class SkopioCliInstaller(
     private val installDir: Path,
-    private val downloadUrl: String,
-    private val binaryName: String,
+    private val latestJsonUrl: String,
+    private val http: HttpClient = defaultHttpClient(),
+    private val latestReader: LatestReader = HttpLatestReader(http),
+    private val unzipper: Unzipper = ZipUnzipper(),
 ) {
-    private val http = HttpClient.newBuilder()
-        .followRedirects(HttpClient.Redirect.NORMAL)
-        .build()
-
-    fun cliPath(): Path = installDir.resolve(binaryName)
 
     fun ensureInstalled(): Path {
         installDir.createDirectories()
-        val path = cliPath()
-        if (path.exists()) return path
 
-        val req = HttpRequest.newBuilder()
-            .uri(URI.create(downloadUrl))
-            .GET()
-            .build()
+        val arch = PlatformArch.detectMacArch()
+        val binaryName = "skopio-cli-darwin-$arch"
+        val targetPath = installDir.resolve(binaryName)
+        val versionMarker = installDir.resolve("$binaryName.version")
 
-        val res = http.send(req, HttpResponse.BodyHandlers.ofByteArray())
-        if (res.statusCode() !in 200..299) {
-            throw RuntimeException("Failed to download Skopio CLI: HTTP ${res.statusCode()}")
+        val latest = latestReader.fetch(latestJsonUrl)
+        val assetKey = PlatformArch.latestJsonAssetKey()
+        val asset = latest.assets[assetKey]
+            ?: error("latest.json missing asset key '$assetKey'")
+
+        if (targetPath.exists() && versionMarker.exists()) {
+            val installed = versionMarker.readText().trim()
+            if (installed == latest.version) return targetPath
         }
 
-        path.writeBytes(res.body())
-        path.toFile().setExecutable(true)
-        return path
+        val tmpDir = installDir.resolve(".tmp").also { it.createDirectories() }
+
+        val zipName = asset.url.substringAfterLast('/')
+        val tmpZip = tmpDir.resolve(zipName)
+
+        downloadToFile(asset.url, tmpZip)
+
+        // Verify sha256 against latest.json
+        val actualSha = sha256Hex(tmpZip)
+        if (!actualSha.equals(asset.sha256, ignoreCase = true)) {
+            tmpZip.deleteIfExists()
+            error("SHA-256 mismatch for $zipName. expected=${asset.sha256} actual=$actualSha")
+        }
+
+        val extracted = unzipper.extractSingleFile(tmpZip, tmpDir)
+        extracted.toFile().setExecutable(true)
+
+        atomicReplace(extracted, targetPath)
+        versionMarker.writeText(latest.version)
+
+        tmpZip.deleteIfExists()
+        return targetPath
+    }
+
+    private fun downloadToFile(url: String, dest: Path) {
+        val req = HttpRequest.newBuilder().uri(URI.create(url)).GET().build()
+        val res = http.send(req, HttpResponse.BodyHandlers.ofByteArray())
+        if (res.statusCode() !in 200..299) {
+            error("Failed to download $url: HTTP ${res.statusCode()}")
+        }
+        dest.writeBytes(res.body())
+    }
+
+    private fun atomicReplace(from: Path, to: Path) {
+        try {
+            Files.move(
+                from,
+                to,
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+                java.nio.file.StandardCopyOption.ATOMIC_MOVE
+            )
+        } catch (_: Exception) {
+            Files.move(from, to, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        }
+    }
+
+    companion object {
+        fun defaultHttpClient(): HttpClient =
+            HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build()
+
+        fun sha256Hex(path: Path): String {
+            val md = MessageDigest.getInstance("SHA-256")
+            path.inputStream().use { input ->
+                val buf = ByteArray(64 * 1024)
+                while (true) {
+                    val n = input.read(buf)
+                    if (n <= 0) break
+                    md.update(buf, 0, n)
+                }
+            }
+            return md.digest().joinToString("") { "%02x".format(it) }
+        }
     }
 }
