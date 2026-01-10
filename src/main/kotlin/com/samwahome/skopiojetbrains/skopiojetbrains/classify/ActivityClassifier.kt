@@ -12,6 +12,8 @@ class ActivityClassifier(@Suppress("unused") private val project: Project) {
         mode.set(category)
     }
 
+    fun getMode(): ActivityCategory = mode.get()
+
     fun currentCategoryFor(file: VirtualFile?): ActivityCategory {
         val m = mode.get()
         if (m != ActivityCategory.CODING) return m
