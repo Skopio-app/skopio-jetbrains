@@ -73,7 +73,7 @@ class UsageTracker(
         val durationSec = endedAtSec - prev.startedAtSec
         if (durationSec <= 0) return
 
-        val appName = ApplicationInfo.getInstance().fullApplicationName
+        val appName = ApplicationInfo.getInstance().fullApplicationName.replace(Regex("""\s+\d+(\.\d+)*.*$"""), "")
         val projectPath = project.basePath ?: project.name
 
         cli.submit(
@@ -93,13 +93,13 @@ class UsageTracker(
         EntityRef(EntityType.FILE, file.path, displayName = file.name)
 
     private fun appEntity(): EntityRef {
-        val name = ApplicationInfo.getInstance().fullApplicationName
+        val name = ApplicationInfo.getInstance().fullApplicationName.replace(Regex("""\s+\d+(\.\d+)*.*$"""), "")
         return EntityRef(EntityType.APP, value = name, displayName = name)
     }
 
     fun flushActiveNow() {
         val nowSec = Instant.now().epochSecond
-        active.getAndSet(null)?.let { finalize(it, nowSec)}
+        active.getAndSet(null)?.let { finalize(it, nowSec) }
         cli.flush()
     }
 
