@@ -14,8 +14,8 @@
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
 Skopio tracks your activity in JetBrains IDEs and records categorized events such as coding,
-debugging, compiling, writing docs, testing, and code reviewing. Events are saved locally and can
-be synced with the Skopio desktop app for richer analytics and insights.
+debugging, compiling, writing docs, testing, and code reviewing. Events are saved locally and are
+synced with the Skopio desktop app for richer analytics and insights.
     ]]></description>
 
     <!-- Product and plugin compatibility requirements.
