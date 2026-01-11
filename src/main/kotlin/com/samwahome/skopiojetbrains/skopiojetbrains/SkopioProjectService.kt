@@ -14,7 +14,7 @@ class SkopioProjectService(private val project: Project) {
 
     private val installer = SkopioCliInstaller(
         installDir = Paths.get(System.getProperty("user.home"), ".skopio", "bin"),
-        latestJsonUrl = "https://github.com/Skopio-app/cli-releases/releases/download/latest/latest.json"
+        latestJsonUrl = "https://github.com/Skopio-app/cli-releases/releases/latest/download/latest.json"
     )
 
     private val cliBridge: SkopioCliBridge = SkopioCliBridgeImpl(installer)

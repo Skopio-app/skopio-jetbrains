@@ -12,16 +12,17 @@
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
-    <description>
-        <p>Track your coding activity in Jetbrains IDEs with categorized events. The Skopio
-            Jetbrains plugin logs your coding sessions locally, and syncs them with the Skopio desktop app
-            for richer analytics.
-        </p>
-    </description>
+    <description><![CDATA[
+Skopio tracks your activity in JetBrains IDEs and records categorized events such as coding,
+debugging, compiling, writing docs, testing, and code reviewing. Events are saved locally and can
+be synced with the Skopio desktop app for richer analytics and insights.
+    ]]></description>
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+
+    <depends>com.intellij.modules.java</depends>
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->

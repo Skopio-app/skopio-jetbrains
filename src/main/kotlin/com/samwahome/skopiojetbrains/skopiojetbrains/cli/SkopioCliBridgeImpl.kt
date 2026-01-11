@@ -14,6 +14,8 @@ class SkopioCliBridgeImpl(
     private val draining = AtomicBoolean(false)
     private val executor = AppExecutorUtil.getAppExecutorService()
 
+    private val cliLocator = CliLocator(installer)
+
     override fun submit(event: UsageEvent) {
         buffer.add(event)
     }
@@ -26,7 +28,7 @@ class SkopioCliBridgeImpl(
                 val batch = buffer.drain()
                 if (batch.isEmpty()) return@execute
 
-                val cli = installer.ensureInstalled().pathString
+                val cli = cliLocator.resolve().pathString
                 for (ev in batch) {
                     runEventCommand(cli, ev)
                 }
@@ -38,7 +40,7 @@ class SkopioCliBridgeImpl(
 
     override fun sync() {
         executor.execute {
-            val cli = installer.ensureInstalled().pathString
+            val cli = cliLocator.resolve().pathString
             runCommand(cli, listOf("sync"))
         }
     }
