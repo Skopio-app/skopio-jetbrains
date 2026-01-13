@@ -1,6 +1,5 @@
 package com.samwahome.skopiojetbrains.skopiojetbrains.listeners
 
-import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.diff.editor.DiffViewerVirtualFile
 import com.intellij.execution.ExecutionListener
 import com.intellij.execution.ExecutionManager
@@ -14,10 +13,12 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener
+import com.intellij.task.ProjectTaskContext
+import com.intellij.task.ProjectTaskListener
+import com.intellij.task.ProjectTaskManager
 import com.intellij.util.messages.MessageBusConnection
 import com.samwahome.skopiojetbrains.skopiojetbrains.classify.ActivityClassifier
 import com.samwahome.skopiojetbrains.skopiojetbrains.model.ActivityCategory
-import java.util.UUID
 
 class ExecutionModeListener(
     private val project: Project,
@@ -47,18 +48,17 @@ class ExecutionModeListener(
                     exitCode: Int
                 ) {
                     classifier.setMode(ActivityCategory.CODING)
+                    recomputeReviewContext()
                 }
             })
 
             // Build / Compile tracking
-            subscribe(BuildManagerListener.TOPIC, object : BuildManagerListener {
-                override fun buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean) {
-                    if (project != this@ExecutionModeListener.project) return
+            subscribe(ProjectTaskListener.TOPIC, object : ProjectTaskListener {
+                override fun started(context: ProjectTaskContext) {
                     classifier.setMode(ActivityCategory.COMPILING)
                 }
 
-                override fun buildFinished(project: Project, sessionId: UUID, isAutomake: Boolean) {
-                    if (project != this@ExecutionModeListener.project) return
+                override fun finished(result: ProjectTaskManager.Result) {
                     classifier.setMode(ActivityCategory.CODING)
                     recomputeReviewContext()
                 }
