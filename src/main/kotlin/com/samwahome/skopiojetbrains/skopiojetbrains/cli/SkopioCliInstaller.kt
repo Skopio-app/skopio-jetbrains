@@ -1,6 +1,7 @@
 package com.samwahome.skopiojetbrains.skopiojetbrains.cli
 
 import com.samwahome.skopiojetbrains.skopiojetbrains.model.*
+import kotlinx.serialization.json.Json
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -128,4 +129,38 @@ class ZipUnzipper : Unzipper {
         }
         error("Zip contained no file entries: $zipPath")
     }
+}
+
+interface LatestReader {
+    fun fetch(latestJsonUrl: String): LatestJson
+}
+
+class HttpLatestReader(
+    private val http: HttpClient,
+    private val json: Json = Json { ignoreUnknownKeys = true },
+) : LatestReader {
+    override fun fetch(latestJsonUrl: String): LatestJson {
+        val req = HttpRequest.newBuilder().uri(URI.create(latestJsonUrl)).GET().build()
+        val res = http.send(req, HttpResponse.BodyHandlers.ofString())
+        if (res.statusCode() !in 200..299) {
+            error("Failed to fetch latest.json ($latestJsonUrl): HTTP: ${res.statusCode()}")
+        }
+        return json.decodeFromString(LatestJson.serializer(), res.body())
+    }
+}
+
+object PlatformArch {
+    fun detectArch(): String {
+        val os = System.getProperty("os.name").lowercase()
+        require(os.contains("mac")) { "Only macOS supported for now. os=$os" }
+
+        val arch = System.getProperty("os.arch").lowercase()
+        return when {
+            arch.contains("aarch64") || arch.contains("arm64") -> "aarch64"
+            arch.contains("x86_64") || arch.contains("amd64") -> "x86_64"
+            else -> error("Unsupported arch: $arch")
+        }
+    }
+
+    fun latestJsonAssetKey(): String = "darwin-${detectArch()}"
 }
