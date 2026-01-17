@@ -1,11 +1,13 @@
 package com.samwahome.skopiojetbrains.skopiojetbrains.cli
 
+import com.samwahome.skopiojetbrains.skopiojetbrains.model.*
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.zip.ZipInputStream
 import java.security.MessageDigest
 import kotlin.io.path.*
 
@@ -99,5 +101,31 @@ class SkopioCliInstaller(
             }
             return md.digest().joinToString("") { "%02x".format(it) }
         }
+    }
+}
+
+
+interface Unzipper {
+    fun extractSingleFile(zipPath: Path, outputDir: Path): Path
+}
+
+class ZipUnzipper : Unzipper {
+    override fun extractSingleFile(zipPath: Path, outputDir: Path): Path {
+        zipPath.inputStream().use { fis ->
+            ZipInputStream(fis).use { zis ->
+                while (true) {
+                    val entry = zis.nextEntry ?: break
+                    if (entry.isDirectory) continue
+
+                    val outName = entry.name.substringAfterLast('/')
+                    val outPath = outputDir.resolve(outName)
+
+                    outPath.outputStream().use { os -> zis.copyTo(os) }
+                    zis.closeEntry()
+                    return outPath
+                }
+            }
+        }
+        error("Zip contained no file entries: $zipPath")
     }
 }
