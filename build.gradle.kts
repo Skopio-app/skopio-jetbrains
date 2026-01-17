@@ -45,20 +45,6 @@ intellijPlatform {
         ides {
             create(IntelliJPlatformType.IntellijIdeaCommunity, "2025.1.4.1")
             create(IntelliJPlatformType.WebStorm, "2025.1")
-
-            create(IntelliJPlatformType.WebStorm, "2025.1")
-            create(IntelliJPlatformType.PyCharmCommunity, "2025.1")
-            create(IntelliJPlatformType.PyCharmProfessional, "2025.1")
-            create(IntelliJPlatformType.GoLand, "2025.1")
-            create(IntelliJPlatformType.PhpStorm, "2025.1")
-            create(IntelliJPlatformType.RubyMine, "2025.1")
-            create(IntelliJPlatformType.CLion, "2025.1")
-            create(IntelliJPlatformType.DataGrip, "2025.1")
-            create(IntelliJPlatformType.RustRover, "2025.1")
-            create(IntelliJPlatformType.Gateway, "2025.1")
-
-            create(IntelliJPlatformType.DataSpell, "2025.1")
-            create(IntelliJPlatformType.Rider, "2025.1")
         }
     }
 }
