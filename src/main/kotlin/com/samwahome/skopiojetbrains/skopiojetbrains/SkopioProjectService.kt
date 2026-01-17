@@ -1,5 +1,6 @@
 package com.samwahome.skopiojetbrains.skopiojetbrains
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.samwahome.skopiojetbrains.skopiojetbrains.classify.ActivityClassifier
@@ -9,7 +10,7 @@ import com.samwahome.skopiojetbrains.skopiojetbrains.listeners.ExecutionModeList
 import java.nio.file.Paths
 
 @Service(Service.Level.PROJECT)
-class SkopioProjectService(private val project: Project) {
+class SkopioProjectService(private val project: Project) : Disposable {
     private val classifier = ActivityClassifier(project)
 
     private val installer = SkopioCliInstaller(
@@ -32,7 +33,7 @@ class SkopioProjectService(private val project: Project) {
         tracker.start()
     }
 
-    fun stop() {
+    override fun dispose() {
         execListener.stop()
         tracker.dispose()
     }
