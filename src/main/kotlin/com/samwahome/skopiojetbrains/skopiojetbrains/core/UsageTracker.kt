@@ -28,7 +28,6 @@ class UsageTracker(
     private val project: Project,
     private val classifier: ActivityClassifier,
     private val cli: SkopioCliBridge,
-    private val sourceName: String = "skopio-jetbrains",
     private val idleTimeoutSec: Long = 60,
     private val idleCheckEverySec: Long = 5,
 ) : Disposable {
@@ -152,7 +151,7 @@ class UsageTracker(
                 app = appName,
                 entity = prev.entity,
                 projectPath = projectPath,
-                source = sourceName,
+                source = "skopio-jetbrains",
                 timestamp = prev.startedAtSec,
                 endTimestamp = endedAtSec,
             )

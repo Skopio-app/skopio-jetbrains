@@ -23,7 +23,6 @@ class SkopioProjectService(private val project: Project) {
         project = project,
         classifier = classifier,
         cli = cliBridge,
-        sourceName = "skopio-jetbrains"
     )
 
     private val execListener = ExecutionModeListener(project, classifier)
