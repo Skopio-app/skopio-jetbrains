@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.samwahome.skopio-jetbrains"
-version = "1.0-SNAPSHOT"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
@@ -46,6 +46,12 @@ intellijPlatform {
             create(IntelliJPlatformType.IntellijIdeaCommunity, "2025.1.4.1")
             create(IntelliJPlatformType.WebStorm, "2025.1")
         }
+    }
+}
+
+intellijPlatform {
+    publishing {
+        token.set(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
     }
 }
 
