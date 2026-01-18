@@ -1,0 +1,40 @@
+name: Verify Plugin
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "23"
+          cache: gradle
+
+      - name: Stop Gradle daemons
+        run: ./gradlew --stop
+
+      - name: Verify plugin structure
+        run: ./gradlew verifyPluginStructure
+
+      - name: Verify project configuration
+        run: ./gradlew verifyPluginProjectConfiguration
+
+      - name: Run plugin Verifier
+        run: ./gradlew verifyPlugin
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: plugin-verifier-reports
+          path: build/reports

@@ -1,11 +1,14 @@
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "2.1.0"
     id("org.jetbrains.intellij.platform") version "2.7.1"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.0"
 }
 
 group = "com.samwahome.skopio-jetbrains"
-version = "1.0-SNAPSHOT"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
@@ -20,10 +23,9 @@ dependencies {
     intellijPlatform {
         create("IC", "2025.1.4.1")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
-
-        // Add necessary plugin dependencies for compilation here, example:
-        // bundledPlugin("com.intellij.java")
     }
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 }
 
 intellijPlatform {
@@ -35,6 +37,27 @@ intellijPlatform {
         changeNotes = """
             Initial version
         """.trimIndent()
+    }
+}
+
+intellijPlatform {
+    pluginVerification {
+        ides {
+            create(IntelliJPlatformType.IntellijIdeaCommunity, "2025.1.4.1")
+            create(IntelliJPlatformType.WebStorm, "2025.1")
+        }
+    }
+}
+
+intellijPlatform {
+    signing {
+        certificateChain.set(System.getenv("JB_CERTIFICATE_CHAIN"))
+        privateKey.set(System.getenv("JB_PRIVATE_KEY"))
+        password.set(System.getenv("JB_PRIVATE_KEY_PASSWORD"))
+    }
+
+    publishing {
+        token.set(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
     }
 }
 
