@@ -25,6 +25,9 @@ synced with the Skopio desktop app for richer analytics and insights.
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity implementation="com.samwahome.skopiojetbrains.skopiojetbrains.SkopioProjectActivity"/>
+        <postStartupActivity
+                implementation="com.samwahome.skopiojetbrains.skopiojetbrains.SkopioProjectActivity"
+                os="mac"
+        />
     </extensions>
 </idea-plugin>
