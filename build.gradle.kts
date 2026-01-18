@@ -50,6 +50,12 @@ intellijPlatform {
 }
 
 intellijPlatform {
+    signing {
+        certificateChain.set(System.getenv("JB_CERTIFICATE_CHAIN"))
+        privateKey.set(System.getenv("JB_PRIVATE_KEY"))
+        password.set(System.getenv("JB_PRIVATE_KEY_PASSWORD"))
+    }
+
     publishing {
         token.set(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
     }
